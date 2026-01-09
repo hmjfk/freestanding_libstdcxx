@@ -1,4 +1,4 @@
-# libstdcxx freestanding externsion
+# libstdcxx Freestanding Externsion Support
 ## LICENSE
 GNU GPLv3 or later and GNU RLE 3.1
 
