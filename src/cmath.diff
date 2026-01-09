@@ -1,0 +1,30 @@
+--- libstdc++/cmath	2026-01-09 15:08:25.181622000 +0900
++++ libstdc++_freestanding/cmath	2026-01-09 15:27:02.933844200 +0900
+@@ -1,7 +1,8 @@
+ // -*- C++ -*- C forwarding header.
+ 
+ // Copyright (C) 1997-2026 Free Software Foundation, Inc.
+-//
++// Copyright (C) 2026 Denkousi
++
+ // This file is part of the GNU ISO C++ Library.  This library is free
+ // software; you can redistribute it and/or modify it under the
+ // terms of the GNU General Public License as published by the
+@@ -43,8 +44,6 @@
+ #pragma GCC system_header
+ #endif
+ 
+-#include <bits/requires_hosted.h>
+-
+ #include <bits/c++config.h>
+ #include <bits/cpp_type_traits.h>
+ #include <ext/type_traits.h>
+@@ -3909,7 +3908,8 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
+ _GLIBCXX_END_NAMESPACE_VERSION
+ } // namespace
+ 
+-#if _GLIBCXX_USE_STD_SPEC_FUNCS
++
++#if _GLIBCXX_USE_STD_SPEC_FUNCS && !defined(_GLIBCXX_HOSTED)
+ #  include <bits/specfun.h>
+ #endif
