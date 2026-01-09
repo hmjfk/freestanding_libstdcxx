@@ -1,0 +1,1555 @@
+// ISO C++ Standard library header (libstdc++) <cmath> for freestandig edition
+
+// Copyright  1997-2025 Free Software Foundation, Inc.
+// Copyright  2026 Denkousi
+
+// This file is part of the GNU ISO C++ Library.  This library is free
+// software; you can redistribute it and/or modify it under the
+// terms of the GNU General Public License as published by the
+// Free Software Foundation; either version 3, or
+// any later version.
+
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// Under Section 7 of GPL version 3, you are granted additional
+// permissions described in the GCC Runtime Library Exception, version
+// 3.1, as published by the Free Software Foundation.
+
+// You should have received a copy of the GNU General Public License and
+// a copy of the GCC Runtime Library Exception along with this program;
+// see the files COPYING3 and COPYING.RUNTIME respectively.  If not, see
+// <http://www.gnu.org/licenses/>.
+
+/*
+デバッグが予想以上に大変だったため、途中で実装を諦めた。部分的にしかcompileには成功していない。
+この実装は、source codeの可読性、可搬性(clangとgcc)、簡潔性を重視した。
+簡潔性の面では、定義順を規格書に合わせること、実装を余計な分割headerにしないことを意識した。
+可読性の面では、macroを使ってprogramの意味を変更しないこと、__や_<大文字>から始まる名前にしないことを意識した。
+それ以外は、各種安全codeing規約を意識した。
+*/
+#if !defined(LIBSTDCPP_CMATH)
+#define LIBSTDCPP_CMATH
+
+#if defined (__MATH_H)
+#error "include <cmath> first"
+#elif !defined (__GNUC__)
+#error "This compiler is Not supported GNU extension."
+#else
+
+// libc <math.h> header
+// The following libc functions are recognized by compiler. see https://gcc.gnu.org/onlinedocs/gcc/Library-Builtins.html 
+extern "C"
+{
+	double acos(double x);
+	float acosf(float x);
+	long double acosl(long double x);
+	double asin(double x);
+	float asinf(float x);
+	long double asinl(long double x);
+	double atan(double x);
+	float atanf(float x);
+	long double atanl(long double x);
+	double atan2(double y, double x);
+	float atan2f(float y, float x);
+	long double atan2l(long double y, long double x);
+	double cos(double x);
+	float cosf(float x);
+	long double cosl(long double x);
+	double sin(double x);
+	float sinf(float x);
+	long double sinl(long double x);
+	double tan(double x);
+	float tanf(float x);
+	long double tanl(long double x);
+	double acospi(double x);
+	float acospif(float x);
+	long double acospil(long double x);
+	double asinpi(double x);
+	float asinpif(float x);
+	long double asinpil(long double x);
+	double atanpi(double x);
+	float atanpif(float x);
+	long double atanpil(long double x);
+	double atan2pi(double y, double x);
+	float atan2pif(float y, float x);
+	long double atan2pil(long double y, long double x);
+	double cospi(double x);
+	float cospif(float x);
+	long double cospil(long double x);
+	double sinpi(double x);
+	float sinpif(float x);
+	long double sinpil(long double x);
+	double tanpi(double x);
+	float tanpif(float x);
+	long double tanpil(long double x);
+	double acosh(double x);
+	float acoshf(float x);
+	long double acoshl(long double x);
+	double asinh(double x);
+	float asinhf(float x);
+	long double asinhl(long double x);
+	double atanh(double x);
+	float atanhf(float x);
+	long double atanhl(long double x);
+	double cosh(double x);
+	float coshf(float x);
+	long double coshl(long double x);
+	double sinh(double x);
+	float sinhf(float x);
+	long double sinhl(long double x);
+	double tanh(double x);
+	float tanhf(float x);
+	long double tanhl(long double x);
+	double exp(double x);
+	float expf(float x);
+	long double expl(long double x);
+	double exp10(double x);
+	float exp10f(float x);
+	long double exp10l(long double x);
+	double exp10m1(double x);
+	float exp10m1f(float x);
+	long double exp10m1l(long double x);
+	double exp2(double x);
+	float exp2f(float x);
+	long double exp2l(long double x);
+	double exp2m1(double x);
+	float exp2m1f(float x);
+	long double exp2m1l(long double x);
+	double expm1(double x);
+	float expm1f(float x);
+	long double expm1l(long double x);
+	double frexp(double value, int *p);
+	float frexpf(float value, int *p);
+	long double frexpl(long double value, int *p);
+	int ilogb(double x);
+	int ilogbf(float x);
+	int ilogbl(long double x);
+	double ldexp(double x, int p);
+	float ldexpf(float x, int p);
+	long double ldexpl(long double x, int p);
+	long int llogb(double x);
+	long int llogbf(float x);
+	long int llogbl(long double x);
+	double log(double x);
+	float logf(float x);
+	long double logl(long double x);
+	double log10(double x);
+	float log10f(float x);
+	long double log10l(long double x);
+	double log10p1(double x);
+	float log10p1f(float x);
+	long double log10p1l(long double x);
+	double log1p(double x);
+	float log1pf(float x);
+	long double log1pl(long double x);
+	double logp1(double x);
+	float logp1f(float x);
+	long double logp1l(long double x);
+	double log2(double x);
+	float log2f(float x);
+	long double log2l(long double x);
+	double log2p1(double x);
+	float log2p1f(float x);
+	long double log2p1l(long double x);
+	double logb(double x);
+	float logbf(float x);
+	long double logbl(long double x);
+	double modf(double value, double *iptr);
+	float modff(float value, float *iptr);
+	long double modfl(long double value, long double *iptr);
+	double scalbn(double x, int n);
+	float scalbnf(float x, int n);
+	long double scalbnl(long double x, int n);
+	double scalbln(double x, long int n);
+	float scalblnf(float x, long int n);
+	long double scalblnl(long double x, long int n);
+	double cbrt(double x);
+	float cbrtf(float x);
+	long double cbrtl(long double x);
+	double compoundn(double x, long long int n);
+	float compoundnf(float x, long long int n);
+	long double compoundnl(long double x, long long int n);
+	double fabs(double x);
+	float fabsf(float x);
+	long double fabsl(long double x);
+	double hypot(double x, double y);
+	float hypotf(float x, float y);
+	long double hypotl(long double x, long double y);
+	double pow(double x, double y);
+	float powf(float x, float y);
+	long double powl(long double x, long double y);
+	double pown(double x, long long int n);
+	float pownf(float x, long long int n);
+	long double pownl(long double x, long long int n);
+	double powr(double y, double x);
+	float powrf(float y, float x);
+	long double powrl(long double y, long double x);
+	double rootn(double x, long long int n);
+	float rootnf(float x, long long int n);
+	long double rootnl(long double x, long long int n);
+	double rsqrt(double x);
+	float rsqrtf(float x);
+	long double rsqrtl(long double x);
+	double sqrt(double x);
+	float sqrtf(float x);
+	long double sqrtl(long double x);
+	double erf(double x);
+	float erff(float x);
+	long double erfl(long double x);
+	double erfc(double x);
+	float erfcf(float x);
+	long double erfcl(long double x);
+	double lgamma(double x);
+	float lgammaf(float x);
+	long double lgammal(long double x);
+	double tgamma(double x);
+	float tgammaf(float x);
+	long double tgammal(long double x);
+	double ceil(double x);
+	float ceilf(float x);
+	long double ceill(long double x);
+	double floor(double x);
+	float floorf(float x);
+	long double floorl(long double x);
+	double nearbyint(double x);
+	float nearbyintf(float x);
+	long double nearbyintl(long double x);
+	double rint(double x);
+	float rintf(float x);
+	long double rintl(long double x);
+	long int lrint(double x);
+	long int lrintf(float x);
+	long int lrintl(long double x);
+	long long int llrint(double x);
+	long long int llrintf(float x);
+	long long int llrintl(long double x);
+	double round(double x);
+	float roundf(float x);
+	long double roundl(long double x);
+	long int lround(double x);
+	long int lroundf(float x);
+	long int lroundl(long double x);
+	long long int llround(double x);
+	long long int llroundf(float x);
+	long long int llroundl(long double x);
+	double roundeven(double x);
+	float roundevenf(float x);
+	long double roundevenl(long double x);
+	double trunc(double x);
+	float truncf(float x);
+	long double truncl(long double x);
+	double fromfp(double x, int rnd, unsigned int width);
+	float fromfpf(float x, int rnd, unsigned int width);
+	long double fromfpl(long double x, int rnd, unsigned int width);
+	double ufromfp(double x, int rnd, unsigned int width);
+	float ufromfpf(float x, int rnd, unsigned int width);
+	long double ufromfpl(long double x, int rnd, unsigned int width);
+	double fromfpx(double x, int rnd, unsigned int width);
+	float fromfpxf(float x, int rnd, unsigned int width);
+	long double fromfpxl(long double x, int rnd, unsigned int width);
+	double ufromfpx(double x, int rnd, unsigned int width);
+	float ufromfpxf(float x, int rnd, unsigned int width);
+	long double ufromfpxl(long double x, int rnd, unsigned int width);
+	double fmod(double x, double y);
+	float fmodf(float x, float y);
+	long double fmodl(long double x, long double y);
+	double remainder(double x, double y);
+	float remainderf(float x, float y);
+	long double remainderl(long double x, long double y);
+	double remquo(double x, double y, int *quo);
+	float remquof(float x, float y, int *quo);
+	long double remquol(long double x, long double y, int *quo);
+	double copysign(double x, double y);
+	float copysignf(float x, float y);
+	long double copysignl(long double x, long double y);
+	double nan(const char *tagp);
+	float nanf(const char *tagp);
+	long double nanl(const char *tagp);
+	double nextafter(double x, double y);
+	float nextafterf(float x, float y);
+	long double nextafterl(long double x, long double y);
+	double nexttoward(double x, long double y);
+	float nexttowardf(float x, long double y);
+	long double nexttowardl(long double x, long double y);
+	double nextup(double x);
+	float nextupf(float x);
+	long double nextupl(long double x);
+	double nextdown(double x);
+	float nextdownf(float x);
+	long double nextdownl(long double x);
+	int canonicalize(double *cx, const double *x);
+	int canonicalizef(float *cx, const float *x);
+	int canonicalizel(long double *cx, const long double *x);
+	double fdim(double x, double y);
+	float fdimf(float x, float y);
+	long double fdiml(long double x, long double y);
+	double fmax(double x, double y);
+	float fmaxf(float x, float y);
+	long double fmaxl(long double x, long double y);
+	double fmin(double x, double y);
+	float fminf(float x, float y);
+	long double fminl(long double x, long double y);
+	double fmaximum(double x, double y);
+	float fmaximumf(float x, float y);
+	long double fmaximuml(long double x, long double y);
+	double fminimum(double x, double y);
+	float fminimumf(float x, float y);
+	long double fminimuml(long double x, long double y);
+	double fmaximum_mag(double x, double y);
+	float fmaximum_magf(float x, float y);
+	long double fmaximum_magl(long double x, long double y);
+	double fminimum_mag(double x, double y);
+	float fminimum_magf(float x, float y);
+	long double fminimum_magl(long double x, long double y);
+	double fmaximum_num(double x, double y);
+	float fmaximum_numf(float x, float y);
+	long double fmaximum_numl(long double x, long double y);
+	double fminimum_num(double x, double y);
+	float fminimum_numf(float x, float y);
+	long double fminimum_numl(long double x, long double y);
+	double fmaximum_mag_num(double x, double y);
+	float fmaximum_mag_numf(float x, float y);
+	long double fmaximum_mag_numl(long double x, long double y);
+	double fminimum_mag_num(double x, double y);
+	float fminimum_mag_numf(float x, float y);
+	long double fminimum_mag_numl(long double x, long double y);
+	double fma(double x, double y, double z);
+	float fmaf(float x, float y, float z);
+	long double fmal(long double x, long double y, long double z);
+	float fadd(double x, double y);
+	float faddl(long double x, long double y);
+	double daddl(long double x, long double y);
+	float fsub(double x, double y);
+	float fsubl(long double x, long double y);
+	double dsubl(long double x, long double y);
+	float fmul(double x, double y);
+	float fmull(long double x, long double y);
+	double dmull(long double x, long double y);
+	float fdiv(double x, double y);
+	float fdivl(long double x, long double y);
+	double ddivl(long double x, long double y);
+	float ffma(double x, double y, double z);
+	float ffmal(long double x, long double y, long double z);
+	double dfmal(long double x, long double y, long double z);
+	float fsqrt(double x);
+	float fsqrtl(long double x);
+	double dsqrtl(long double x);
+}
+
+// #include<math.h> // If you don't have it, you can collide for some reason.
+
+#undef HUGE_VAL
+#undef HUGE_VALF
+#undef HUGE_VALL
+#undef INFINITY
+#undef NAN
+#undef fpclassify
+#undef iscanonical
+#undef isfinite
+#undef isinf
+#undef isnan
+#undef isnormal
+#undef signbit
+#undef issignaling
+#undef issubnormal
+#undef iszero
+#undef acos
+#undef acosf
+#undef acosl
+#undef asin
+#undef asinf
+#undef asinl
+#undef atan
+#undef atanf
+#undef atanl
+#undef atan2
+#undef atan2f
+#undef atan2l
+#undef cos
+#undef cosf
+#undef cosl
+#undef sin
+#undef sinf
+#undef sinl
+#undef tan
+#undef tanf
+#undef tanl
+#undef acospi
+#undef acospif
+#undef acospil
+#undef asinpi
+#undef asinpif
+#undef asinpil
+#undef atanpi
+#undef atanpif
+#undef atanpil
+#undef atan2pi
+#undef atan2pif
+#undef atan2pil
+#undef cospi
+#undef cospif
+#undef cospil
+#undef sinpi
+#undef sinpif
+#undef sinpil
+#undef tanpi
+#undef tanpif
+#undef tanpil
+#undef acosh
+#undef acoshf
+#undef acoshl
+#undef asinh
+#undef asinhf
+#undef asinhl
+#undef atanh
+#undef atanhf
+#undef atanhl
+#undef cosh
+#undef coshf
+#undef coshl
+#undef sinh
+#undef sinhf
+#undef sinhl
+#undef tanh
+#undef tanhf
+#undef tanhl
+#undef exp
+#undef expf
+#undef expl
+#undef exp10
+#undef exp10f
+#undef exp10l
+#undef exp10m1
+#undef exp10m1f
+#undef exp10m1l
+#undef exp2
+#undef exp2f
+#undef exp2l
+#undef exp2m1
+#undef exp2m1f
+#undef exp2m1l
+#undef expm1
+#undef expm1f
+#undef expm1l
+#undef frexp
+#undef frexpf
+#undef frexpl
+#undef ilogb
+#undef ilogbf
+#undef ilogbl
+#undef ldexp
+#undef ldexpf
+#undef ldexpl
+#undef llogb
+#undef llogbf
+#undef llogbl
+#undef log
+#undef logf
+#undef logl
+#undef log10
+#undef log10f
+#undef log10l
+#undef log10p1
+#undef log10p1f
+#undef log10p1l
+#undef log1p
+#undef log1pf
+#undef log1pl
+#undef logp1
+#undef logp1f
+#undef logp1l
+#undef log2
+#undef log2f
+#undef log2l
+#undef log2p1
+#undef log2p1f
+#undef log2p1l
+#undef logb
+#undef logbf
+#undef logbl
+#undef modf
+#undef modff
+#undef modfl
+#undef scalbn
+#undef scalbnf
+#undef scalbnl
+#undef scalbln
+#undef scalblnf
+#undef scalblnl
+#undef cbrt
+#undef cbrtf
+#undef cbrtl
+#undef compoundn
+#undef compoundnf
+#undef compoundnl
+#undef fabs
+#undef fabsf
+#undef fabsl
+#undef hypot
+#undef hypotf
+#undef hypotl
+#undef pow
+#undef powf
+#undef powl
+#undef pown
+#undef pownf
+#undef pownl
+#undef powr
+#undef powrf
+#undef powrl
+#undef rootn
+#undef rootnf
+#undef rootnl
+#undef rsqrt
+#undef rsqrtf
+#undef rsqrtl
+#undef sqrt
+#undef sqrtf
+#undef sqrtl
+#undef erf
+#undef erff
+#undef erfl
+#undef erfc
+#undef erfcf
+#undef erfcl
+#undef lgamma
+#undef lgammaf
+#undef lgammal
+#undef tgamma
+#undef tgammaf
+#undef tgammal
+#undef ceil
+#undef ceilf
+#undef ceill
+#undef floor
+#undef floorf
+#undef floorl
+#undef nearbyint
+#undef nearbyintf
+#undef nearbyintl
+#undef rint
+#undef rintf
+#undef rintl
+#undef lrint
+#undef lrintf
+#undef lrintl
+#undef llrint
+#undef llrintf
+#undef llrintl
+#undef round
+#undef roundf
+#undef roundl
+#undef lround
+#undef lroundf
+#undef lroundl
+#undef llround
+#undef llroundf
+#undef llroundl
+#undef roundeven
+#undef roundevenf
+#undef roundevenl
+#undef trunc
+#undef truncf
+#undef truncl
+#undef fromfp
+#undef fromfpf
+#undef fromfpl
+#undef ufromfp
+#undef ufromfpf
+#undef ufromfpl
+#undef fromfpx
+#undef fromfpxf
+#undef fromfpxl
+#undef ufromfpx
+#undef ufromfpxf
+#undef ufromfpxl
+#undef fmod
+#undef fmodf
+#undef fmodl
+#undef remainder
+#undef remainderf
+#undef remainderl
+#undef remquo
+#undef remquof
+#undef remquol
+#undef copysign
+#undef copysignf
+#undef copysignl
+#undef nan
+#undef nanf
+#undef nanl
+#undef nextafter
+#undef nextafterf
+#undef nextafterl
+#undef nexttoward
+#undef nexttowardf
+#undef nexttowardl
+#undef nextup
+#undef nextupf
+#undef nextupl
+#undef nextdown
+#undef nextdownf
+#undef nextdownl
+#undef canonicalize
+#undef canonicalizef
+#undef canonicalizel
+#undef fdim
+#undef fdimf
+#undef fdiml
+#undef fmax
+#undef fmaxf
+#undef fmaxl
+#undef fmin
+#undef fminf
+#undef fminl
+#undef fmaximum
+#undef fmaximumf
+#undef fmaximuml
+#undef fminimum
+#undef fminimumf
+#undef fminimuml
+#undef fmaximum_mag
+#undef fmaximum_magf
+#undef fmaximum_magl
+#undef fminimum_mag
+#undef fminimum_magf
+#undef fminimum_magl
+#undef fmaximum_num
+#undef fmaximum_numf
+#undef fmaximum_numl
+#undef fminimum_num
+#undef fminimum_numf
+#undef fminimum_numl
+#undef fmaximum_mag_num
+#undef fmaximum_mag_numf
+#undef fmaximum_mag_numl
+#undef fminimum_mag_num
+#undef fminimum_mag_numf
+#undef fminimum_mag_numl
+#undef fma
+#undef fmaf
+#undef fmal
+#undef fadd
+#undef faddl
+#undef daddl
+#undef fsub
+#undef fsubl
+#undef dsubl
+#undef fmul
+#undef fmull
+#undef dmull
+#undef fdiv
+#undef fdivl
+#undef ddivl
+#undef ffma
+#undef ffmal
+#undef dfmal
+#undef fsqrt
+#undef fsqrtl
+#undef dsqrtl
+
+
+#include <limits>
+#include <type_traits>
+
+constexpr auto HUGE_VAL = std::numeric_limits<double>::infinity();
+constexpr auto HUGE_VALF = std::numeric_limits<float>::infinity();
+constexpr auto HUGE_VALL = std::numeric_limits<long double>::infinity();
+constexpr auto INFINITY = HUGE_VALF;
+constexpr auto NAN = std::numeric_limits<float>::quiet_NaN();
+
+// This Header Extension: C23 Additional function for C++.
+namespace std
+{
+	using ::float_t;
+	using ::double_t;
+
+	using ::acos;
+	using ::acosf;
+	using ::acosl;
+
+	using ::asin;
+	using ::asinf;
+	using ::asinl;
+	
+	using ::atan;
+	using ::atanf;
+	using ::atanl;
+	
+	using ::atan2;
+	using ::atan2f;
+	using ::atan2l;
+	
+	using ::cos;
+	using ::cosf;
+	using ::cosl;
+	
+	using ::sin;
+	using ::sinf;
+	using ::sinl;
+	
+	using ::tan;
+	using ::tanf;
+	using ::tanl;
+	
+	using ::acospi;
+	using ::acospif;
+	using ::acospil;
+	
+	using ::asinpi;
+	using ::asinpif;
+	using ::asinpil;
+	
+	using ::atanpi;
+	using ::atanpif;
+	using ::atanpil;
+	
+	using ::atan2pi;
+	using ::atan2pif;
+	using ::atan2pil;
+	
+	using ::cospi;
+	using ::cospif;
+	using ::cospil;
+	
+	using ::sinpi;
+	using ::sinpif;
+	using ::sinpil;
+	
+	using ::tanpi;
+	using ::tanpif;
+	using ::tanpil;
+
+	using ::acosh;
+	using ::acoshf;
+	using ::acoshl;
+	
+	using ::asinh;
+	using ::asinhf;
+	using ::asinhl;
+	
+	using ::atanh;
+	using ::atanhf;
+	using ::atanhl;
+	
+	using ::cosh;
+	using ::coshf;
+	using ::coshl;
+	
+	using ::sinh;
+	using ::sinhf;
+	using ::sinhl;
+	
+	using ::tanh;
+	using ::tanhf;
+	using ::tanhl;
+	
+	using ::exp;
+	using ::expf;
+	using ::expl;
+	
+	using ::exp10;
+	using ::exp10f;
+	using ::exp10l;
+	
+	using ::exp10m1;
+	using ::exp10m1f;
+	using ::exp10m1l;
+	
+	using ::exp2;
+	using ::exp2f;
+	using ::exp2l;
+	
+	using ::exp2m1;
+	using ::exp2m1f;
+	using ::exp2m1l;
+
+	using ::expm1;
+	using ::expm1f;
+	using ::expm1l;
+	
+	using ::frexp;
+	using ::frexpf;
+	using ::frexpl;
+	
+	using ::ilogb;
+	using ::ilogbf;
+	using ::ilogbl;
+	
+	using ::ldexp;
+	using ::ldexpf;
+	using ::ldexpl;
+	
+	using ::llogb;
+	using ::llogbf;
+	using ::llogbl;
+	
+	using ::log;
+	using ::logf;
+	using ::logl;
+	
+	using ::log10;
+	using ::log10f;
+	using ::log10l;
+
+	using ::log10p1;
+	using ::log10p1f;
+	using ::log10p1l;
+	
+	using ::log1p;
+	using ::log1pf;
+	using ::log1pl;
+	
+	using ::logp1;
+	using ::logp1f;
+	using ::logp1l;
+
+	using ::log2;
+	using ::log2f;
+	using ::log2l;
+	
+	using ::log2p1;
+	using ::log2p1f;
+	using ::log2p1l;
+	
+	using ::logb;
+	using ::logbf;
+	using ::logbl;
+	
+	using ::modf;
+	using ::modff;
+	using ::modfl;
+	
+	using ::scalbn;
+	using ::scalbnf;
+	using ::scalbnl;
+	
+	using ::scalbln;
+	using ::scalblnf;
+	using ::scalblnl;
+	
+	using ::cbrt;
+	using ::cbrtf;
+	using ::cbrtl;
+	
+	using ::compoundn;
+	using ::compoundnf;
+	using ::compoundnl;
+	
+	using ::fabs;
+	using ::fabsf;
+	using ::fabsl;
+	
+	using ::hypot;
+	using ::hypotf;
+	using ::hypotl;
+	
+	using ::pow;
+	using ::powf;
+	using ::powl;
+	
+	using ::pown;
+	using ::pownf;
+	using ::pownl;
+	
+	using ::powr;
+	using ::powrf;
+	using ::powrl;
+	
+	using ::rootn;
+	using ::rootnf;
+	using ::rootnl;
+	
+	using ::rsqrt;
+	using ::rsqrtf;
+	using ::rsqrtl;
+	
+	using ::sqrt;
+	using ::sqrtf;
+	using ::sqrtl;
+	
+	using ::erf;
+	using ::erff;
+	using ::erfl;
+	
+	using ::erfc;
+	using ::erfcf;
+	using ::erfcl;
+	
+	using ::lgamma;
+	using ::lgammaf;
+	using ::lgammal;
+	
+	using ::tgamma;
+	using ::tgammaf;
+	using ::tgammal;
+	
+	using ::ceil;
+	using ::ceilf;
+	using ::ceill;
+	
+	using ::floor;
+	using ::floorf;
+	using ::floorl;
+	
+	using ::nearbyint;
+	using ::nearbyintf;
+	using ::nearbyintl;
+	
+	using ::rint;
+	using ::rintf;
+	using ::rintl;
+	
+	using ::lrint;
+	using ::lrintf;
+	using ::lrintl;
+	
+	using ::llrint;
+	using ::llrintf;
+	using ::llrintl;
+	
+	using ::round;
+	using ::roundf;
+	using ::roundl;
+	
+	using ::lround;
+	using ::lroundf;
+	using ::lroundl;
+	
+	using ::llround;
+	using ::llroundf;
+	using ::llroundl;
+	
+	using ::roundeven;
+	using ::roundevenf;
+	using ::roundevenl;
+	
+	using ::trunc;
+	using ::truncf;
+	using ::truncl;
+	
+	using ::fromfp;
+	using ::fromfpf;
+	using ::fromfpl;
+	
+	using ::ufromfp;
+	using ::ufromfpf;
+	using ::ufromfpl;
+	
+	using ::fromfpx;
+	using ::fromfpxf;
+	using ::fromfpxl;
+	
+	using ::ufromfpx;
+	using ::ufromfpxf;
+	using ::ufromfpxl;
+	
+	using ::fmod;
+	using ::fmodf;
+	using ::fmodl;
+	
+	using ::remainder;
+	using ::remainderf;
+	using ::remainderl;
+	
+	using ::remquo;
+	using ::remquof;
+	using ::remquol;
+	
+	using ::copysign;
+	using ::copysignf;
+	using ::copysignl;
+	
+	using ::nan;
+	using ::nanf;
+	using ::nanl;
+	
+	using ::nextafter;
+	using ::nextafterf;
+	using ::nextafterl;
+	
+	using ::nexttoward;
+	using ::nexttowardf;
+	using ::nexttowardl;
+	
+	using ::nextup;
+	using ::nextupf;
+	using ::nextupl;
+	
+	using ::nextdown;
+	using ::nextdownf;
+	using ::nextdownl;
+	
+	using ::canonicalize;
+	using ::canonicalizef;
+	using ::canonicalizel;
+	
+	using ::fdim;
+	using ::fdimf;
+	using ::fdiml;
+	
+	using ::fmax;
+	using ::fmaxf;
+	using ::fmaxl;
+	
+	using ::fmin;
+	using ::fminf;
+	using ::fminl;
+	
+	using ::fmaximum;
+	using ::fmaximumf;
+	using ::fmaximuml;
+	
+	using ::fminimum;
+	using ::fminimumf;
+	using ::fminimuml;
+	
+	using ::fmaximum_mag;
+	using ::fmaximum_magf;
+	using ::fmaximum_magl;
+	
+	using ::fminimum_mag;
+	using ::fminimum_magf;
+	using ::fminimum_magl;
+	
+	using ::fmaximum_num;
+	using ::fmaximum_numf;
+	using ::fmaximum_numl;
+	
+	using ::fminimum_num;
+	using ::fminimum_numf;
+	using ::fminimum_numl;
+	
+	using ::fmaximum_mag_num;
+	using ::fmaximum_mag_numf;
+	using ::fmaximum_mag_numl;
+	
+	using ::fminimum_mag_num;
+	using ::fminimum_mag_numf;
+	using ::fminimum_mag_numl;
+
+	using ::fma;
+	using ::fmaf;
+	using ::fmal;
+	
+	using ::fadd;
+	using ::faddl;
+	using ::daddl;
+	
+	using ::fsub;
+	using ::fsubl;
+	using ::dsubl;
+	
+	using ::fmul;
+	using ::fmull;
+	using ::dmull;
+	
+	using ::fdiv;
+	using ::fdivl;
+	using ::ddivl;
+	
+	using ::ffma;
+	using ::ffmal;
+	using ::dfmal;
+	
+	using ::fsqrt;
+	using ::fsqrtl;
+	using ::dsqrtl;
+
+	// libc overload set
+	// acos
+	constexpr inline float
+	acos(float x)
+	{ return ::acosf(x); }
+
+  	constexpr inline long double
+  	acos(long double x)
+  	{ return ::acosl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    acos(T x)
+    { return ::acos(x); }
+
+	// asin
+	constexpr inline float
+	asin(float x)
+	{ return ::asinf(x); }
+
+	constexpr inline long double
+	asin(long double x)
+	{ return ::asinl(x); }
+
+	template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    asin(T x)
+	{ return ::asin(x); }
+
+	// atan
+	constexpr inline float
+	atan(float x)
+	{ return ::atanf(x); }
+
+	constexpr inline long double
+	atan(long double x)
+	{ return ::atanl(x); }
+
+	template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    atan(T x)
+	{ return ::atan(x); }
+	/////////////////////
+	// atan2
+	constexpr inline float
+	atan2(float x, float y)
+	{ return ::atan2f(x, y); }
+
+	constexpr inline long double
+	atan2(long double x, long double y)
+	{ return ::atan2l(x, y); }
+
+	template<typename T, typename U>
+    constexpr inline typename detali::overloadCast_t<T, U>
+    atan2(T x, U y)
+	{ return ::atan2(detali::overloadCast<T, U>(x), detali::overloadCast<T, U>(y)); }
+	/////////////////////
+	// cos
+	constexpr inline float
+	cos(float x)
+	{ return ::cosf(x); }
+
+  	constexpr inline long double
+  	cos(long double x)
+  	{ return ::cosl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    cos(T x)
+    { return ::cos(x); }
+
+	// sin
+	constexpr inline float
+	sin(float x)
+	{ return ::sinf(x); }
+
+  	constexpr inline long double
+  	sin(long double x)
+  	{ return ::sinl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    sin(T x)
+    { return ::sin(x); }
+
+	// tan
+	constexpr inline float
+	tan(float x)
+	{ return ::tanf(x); }
+
+  	constexpr inline long double
+  	tan(long double x)
+  	{ return ::tanl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    tan(T x)
+    { return ::tan(x); }
+	/////////////////////
+	// acosh
+	constexpr inline float
+	acosh(float x)
+	{ return ::acoshf(x); }
+
+  	constexpr inline long double
+  	acosh(long double x)
+  	{ return ::acoshl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    acosh(T x)
+    { return ::acosh(x); }
+
+	// asinh
+	constexpr inline float
+	asinh(float x)
+	{ return ::asinhf(x); }
+
+	constexpr inline long double
+	asinh(long double x)
+	{ return ::asinhl(x); }
+
+	template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    asinh(T x)
+	{ return ::asinh(x); }
+
+	// atanh
+	constexpr inline float
+	atanh(float x)
+	{ return ::atanhf(x); }
+
+	constexpr inline long double
+	atanh(long double x)
+	{ return ::atanhl(x); }
+
+	template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    atanh(T x)
+	{ return ::atanh(x); }
+	/////////////////////
+	// cosh
+	constexpr inline float
+	cosh(float x)
+	{ return ::coshf(x); }
+
+  	constexpr inline long double
+  	cosh(long double x)
+  	{ return ::coshl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    cosh(T x)
+    { return ::cosh(x); }
+
+	// sinh
+	constexpr inline float
+	sinh(float x)
+	{ return ::sinhf(x); }
+
+  	constexpr inline long double
+  	sinh(long double x)
+  	{ return ::sinhl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    sinh(T x)
+    { return ::sinh(x); }
+
+	// tanh
+	constexpr inline float
+	tanh(float x)
+	{ return ::tanhf(x); }
+
+  	constexpr inline long double
+  	tanh(long double x)
+  	{ return ::tanhl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    tanh(T x)
+    { return ::tanh(x); }
+	/////////////////////
+	// exp
+	constexpr inline float
+	exp(float x)
+	{ return ::expf(x); }
+
+  	constexpr inline long double
+  	exp(long double x)
+  	{ return ::expl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    exp(T x)
+    { return ::exp(x); }
+	
+	// exp2
+	constexpr inline float
+	exp2(float x)
+	{ return ::exp2f(x); }
+
+  	constexpr inline long double
+  	exp2(long double x)
+  	{ return ::exp2l(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    exp2(T x)
+    { return ::exp2(x); }
+
+	// expm1
+	constexpr inline float
+	expm1(float x)
+	{ return ::expm1f(x); }
+
+  	constexpr inline long double
+  	expm1(long double x)
+  	{ return ::expm1l(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    expm1(T x)
+    { return ::expm1(x); }
+
+	// frexp
+	constexpr inline float
+	frexp(float x, int* exp)
+	{ return ::frexpf(x, exp); }
+
+  	constexpr inline long double
+  	frexp(long double x,  int* exp)
+  	{ return ::frexpl(x, exp); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    frexp(T x,  int* exp)
+    { return ::frexp(x, exp); }
+	/////////////////////
+	// ilogb
+	constexpr inline int
+	ilogb(float x)
+	{ return ::ilogbf(x); }
+
+	constexpr inline int
+	ilogb(long double x)
+	{ return ::ilogbl(x); }
+	
+	
+	template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, int>::type
+    ilogb(T x)
+    { return ::ilogb(x); }
+	/////////////////////
+	// ldexpf
+	constexpr inline float
+	ldexp(float x, int exp)
+	{ return ::ldexpf(x, exp); }
+
+  	constexpr inline long double
+  	ldexp(long double x, int exp)
+  	{ return ::ldexpl(x, exp); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    ldexp(T x, int exp)
+    { return ::ldexp(x); }
+	//////////////////////
+	// log
+	constexpr inline float
+	log(float x)
+	{ return ::logf(x); }
+
+  	constexpr inline long double
+  	log(long double x)
+  	{ return ::logl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    log(T x)
+    { return ::log(x); }
+
+	// log10
+	constexpr inline float
+	log10(float x)
+	{ return ::log10f(x); }
+
+  	constexpr inline long double
+  	log10(long double x)
+  	{ return ::log10l(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    log10(T x)
+    { return ::log10(x); }
+
+	// log1p
+	constexpr inline float
+	log1p(float x)
+	{ return ::log1pf(x); }
+
+  	constexpr inline long double
+  	log1p(long double x)
+  	{ return ::log1pl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    log1p(T x)
+    { return ::log1p(x); }
+
+	// log2
+	log2(float x)
+	{ return ::log2f(x); }
+
+  	constexpr inline long double
+  	log2(long double x)
+  	{ return ::log2l(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    log2(T x)
+    { return ::log2(x); }
+
+	// logb
+	logb(float x)
+	{ return ::logbf(x); }
+
+  	constexpr inline long double
+  	logb(long double x)
+  	{ return ::logbl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    logb(T x)
+    { return ::logb(x); }
+	//////////////////////
+	// modf
+	modf(float x, float* iptr)
+	{ return ::modff(x, iptr); }
+
+  	constexpr inline long double
+  	modf(long double x, long double* iptr)
+  	{ return ::modfl(x, iptr); }
+	
+    template<typename T, typename U>
+    constexpr inline typename detali::overloadCast_t<T, U>
+    modf(T x, U* iptr)
+    { return ::modf(detali::overloadCast<T, U>(x), detali::overloadCast<T, U>*(iptr)); }
+	/////////////////////
+	// scalbn
+	scalbn(float x, int n)
+	{ return ::scalbnf(x, n); }
+
+  	constexpr inline long double
+  	scalbn(long double x, int n)
+  	{ return ::scalbnl(x, n); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    scalbn(T x, int n)
+    { return ::scalbn(x, n); }
+
+	// scalbln
+	scalbln(float x,  long int n)
+	{ return ::scalblnf(x, n); }
+
+  	constexpr inline long double
+  	scalbln(long double x,  long int n)
+  	{ return ::scalblnl(x, n); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    scalbln(T x, long int n)
+    { return ::scalbln(x, n); }
+	/////////////////////
+	// cbrt
+	cbrt(float x)
+	{ return ::cbrtf(x); }
+
+  	constexpr inline long double
+  	cbrt(long double x)
+  	{ return ::cbrtl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    cbrt(T x)
+    { return ::cbrt(x); }
+	/////////////////////
+	// [c.math.abs], absolute values
+#if defined(__GLIBCXX__)
+#include<bits/std_abs.h>
+#elif !__has_include(<cstdlib>)
+	constexpr inline int           	abs(int j)		// freestanding
+  	{ return j >= 0 ? j : -j; }
+	constexpr inline long int		abs(long int j)		// freestanding
+  	{ return j >= 0 ? j : -j; }
+	constexpr inline long long int	abs(long long int j)		// freestanding
+	{ return j >= 0 ? j : -j; }
+#endif
+	constexpr inline double
+  	fabs(double x)
+  	{ return ::absf(x); }
+  	constexpr inline float
+	fabs(float x)
+	{ return ::fabsl(x); }
+
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    fabs(T x)
+    { return ::fabs(x); }
+	/////////////////////
+	// Conversion type for overload solution
+	namespace detali
+	{
+		
+		template<typename T, typename U>
+		struct overload_cast
+		{
+			using type = conditional_t<is_same_v<T, long double> || is_same_v<U, long double>,
+											long double,
+						 					conditional_t<is_same_v<T, double> || is_same_v<U, double> ||
+											is_integral_v<T> || is_integral_v<U>,
+											double, float>
+						 					>;
+		};
+		template<typename T, typename U>
+		using overloadCast = overload_cast<T, U>::type;
+		template<typename T, typename U>
+		using overloadCast_t = overload_cast<T, U>::type;
+
+		template<typename T, typename U, typename V>
+		using overload3Cast = overload_cast<overloadCast<T, U>, V>::type;
+		template<typename T, typename U, typename V>
+		using overload3Cast_t = overload_cast<overloadCast<T, U>, V>::type;
+		
+	}
+	/////////////////////
+	// hypot
+	constexpr inline float
+	hypot(float x, float y)
+	{ return ::hypotf(x, y); }
+
+	constexpr inline double
+	hypot(double x, double y)
+	{ return ::hypotl(x, y); }
+
+	template<typename T, typename U>
+    constexpr inline typename detali::overloadCast_t<T, U>
+	hypot(T x, U y)
+	{ return ::hypot(detali::overloadCast<T, U>(x), detali::overloadCast<T, U>(y)); }
+	
+	// [c.math.hypot3], three-dimensional hypotenuse
+	template<typename T, typename U, typename V>
+    constexpr inline typename detali::overload3Cast_t<T, U, V>
+	hypot(T x, U y, V z)
+	{
+      x = abs(x); y = abs(y); z = abs(z);
+
+    	if (detali::overload3Cast_t<T, U, V> a = x < y ? y < z ? z : y : x < z ? z : x)
+			return a * sqrt((x / a) * (x / a) + (y / a) * (y / a) + (z / a) * (z / a));
+    	else return {};
+	}
+	/////////////////////
+	// pow
+
+	pow(float x)
+	{ return ::powf(x); }
+
+  	constexpr inline long double
+  	pow(long double x)
+  	{ return ::powl(x); }
+	
+    template<typename T, typename U>
+    constexpr inline typename detali::overloadCast_t<T, U>
+    pow(T x, U y)
+    { return pow(detali::overloadCast<T, U>(x), detali::overloadCast<T, U>(y)); }
+	
+	// sqrt
+	constexpr inline float
+	sqrt(float x)
+	{ return ::sqrtf(x); }
+
+  	constexpr inline long double
+  	sqrt(long double x)
+  	{ return ::sqrtl(x); }
+	
+    template<typename T>
+    constexpr inline typename enable_if<is_integral_v<T>, double>::type
+    sqrt(T x)
+    { return sqrt(x); }
+} // namespace std
+
+#endif // cmath conditional include guard
+#endif // end cmath header
